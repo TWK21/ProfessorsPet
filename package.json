@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/lanpai/TeachersAid/issues"
   },
-  "homepage": "https://github.com/lanpai/TeachersAid#readme"
+  "homepage": "https://github.com/lanpai/TeachersAid#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "express": "^4.17.1"
+  }
 }
