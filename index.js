@@ -14,6 +14,7 @@ app.listen(PORT, () => console.log(`server running on port ${PORT}`));
 
 app.use('/', express.static('dist'));
 app.use(express.json());
+app.use(cookieParser());
 
 // Zoom OAuth
 
@@ -40,29 +41,3 @@ app.get('/redirect', async (req, res) => {
 		}
 	} 
 });
-
-// Zoom API
-
-async function listEndedMeetingInstances(meetingId) {
-	if (req.cookies.zoomToken) {
-		try {
-			const url = `https://api.zoom.us/v2/past_meetings/${meetingId}/participants`;
-			const config = {
-				headers: {
-					Authorization: `Bearer ${req.cookies.zoomToken}`
-				}
-			}
-			const { data } = await axios.get(url, config);
-			return data;
-		}
-		catch (err) {
-			throw new Error('listEndedMeetingInstances error');
-		}
-	}
-}
-
-// Module Exports
-
-module.exports = {
-	listEndedMeetingInstances
-};
