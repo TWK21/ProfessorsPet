@@ -43,7 +43,7 @@ app.get('/redirect', async (req, res) => {
 
 // Zoom API
 
-function listEndedMeetingInstances(meetingId) {
+async function listEndedMeetingInstances(meetingId) {
 	if (req.cookies.zoomToken) {
 		try {
 			const url = `https://api.zoom.us/v2/past_meetings/${meetingId}/participants`;
