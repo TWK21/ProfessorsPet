@@ -22,7 +22,7 @@ router.post("/api/listInstances", async (req, res) => {
 
   try {
     // use function to get an array of {instance_id, timestamp}
-    let meeting_instances = await listEndedMeetingInstances(
+    const meeting_instances = await listEndedMeetingInstances(
       req.cookies.zoomToken,
       meeting_id
     );
@@ -31,50 +31,53 @@ router.post("/api/listInstances", async (req, res) => {
     if (meeting_instances.length == 0)
       return res.send(JSON.stringify({ error_code: 3 }));
 
-    // sort by starting time
-    meeting_instances = meeting_instances.sort((a, b) => {
-      let prev = new Date(a.start_time);
-      let next = new Date(b.start_time);
-      if (prev < next) return 1;
-      else return -1;
-    });
-
     // if success
     res.send(JSON.stringify({ error_code: 0, meeting_instances }));
   } catch (err) {
     // if meeting does not exist, return error_code: 2
-    return res.send(JSON.stringify({ error_code: -1, erorr_message: err }));
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
   }
 });
 
 router.post("/api/initClass", async (req, res) => {
   const { meeting_id } = req.body;
+  const owner = req.cookies.zoomToken;
+
   if (!meeting_id) return res.send(JSON.stringify({ error_code: 1 }));
   try {
-    // use function to get array of students that were in the last instance of the meeting_id
-    const students = await getPastMeetingParticipants(
-      req.cookies.zoomToken,
+    // if class already exists return error_code: 5
+    const existingClass = db.get("classes").find({ id: meeting_id }).value();
+    if (existingClass) return res.send(JSON.stringify({ error_code: 5 }));
+
+    console.log("starting listEndedMeetingInstances()");
+    // if no instance return error_code: 3 else find latest instance_id from the meeting_id
+    const meeting_instances = await listEndedMeetingInstances(
+      owner,
       meeting_id
     );
+    if (meeting_instances.length == 0)
+      return res.send(JSON.stringify({ error_code: 3 }));
 
-    // if class already exists return error_code: 6 (?) class already exists
+    const last_meeting_instance = meeting_instances[4].uuid;
 
-    // format students[] into {id, name}
+    // get array of students that were in the last instance of the meeting_id
+    const students = await getPastMeetingParticipants(
+      owner,
+      last_meeting_instance
+    );
 
-    // ***if array.length == 0 (no instance) return res.send(JSON.stringify({error_code: 3}))
+    // add the class to database
+    db.get("classes")
+      .push({
+        id: meeting_id,
+        owner,
+        students,
+      })
+      .write();
 
-    // ADD A CLASS TO DB
-    // db.get("classes")
-    //   .push({
-    //     id: meeting_id,
-    //     owner: <req.cookies>,
-    //     students: students,
-    //   })
-    //   .write();
-
-    // return res.send(JSON.stringify({error_code: 0}))
+    return res.send(JSON.stringify({ error_code: 0 }));
   } catch (err) {
-    return res.send(JSON.stringify({ error_code: -1, erorr_message: err }));
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
   }
 });
 
