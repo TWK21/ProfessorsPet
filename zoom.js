@@ -27,13 +27,28 @@ getUser(token)
       pic_url
     }
 
-listAllRecordings(token, userId, from, to) - from/to = 'yyyy-mm-dd' UTC format - max range: 1 month
-    returns
-      [{
-        uuid
-        recording_urls
-          []
-      }...]
+listAllRecordings(token, from, to) - from/to = 'yyyy-mm-dd' UTC format - max range: 1 month
+  returns
+    [{
+      uuid - meetingUUID,
+      recording_urls
+        [{
+          url,
+          recording_start,
+          recording_end
+        }...]
+    }...]
+
+getMeetingRecordingPassword(token, meetingUUID) - make sure recordings exist in meetinguuid
+  returns
+    password
+
+getPastMeetingDetails(token, meetingUUID)
+  returns
+    {
+      start_time,
+      end_time
+    }
 */
 
 async function listEndedMeetingInstances(token, meetingId) {
@@ -94,25 +109,29 @@ async function getUser(token) {
   }
 }
 
-async function listAllRecordings(token, userId, from, to) {
+async function listAllRecordings(token, _from, _to) {
   try {
-    const url = `https://api.zoom.us/v2/users/${userId}/recordings`;
-    const params = {
-      from,
-      to
-		};
+    const url = `https://api.zoom.us/v2/users/me/recordings`;
     const config = {
       headers: {
         Authorization: `Bearer ${token}`
+      },
+      params: {
+        from: _from,
+        to: _to
       }
     };
-    const { data } = await axios.get(url, qs.stringify(params), config);
+    const { data } = await axios.get(url, config);
 
     let meetings = [];
     for (meeting of data.meetings) {
       let recFiles = [];
       for (recFile of meeting.recording_files) {
-        recFiles.push(recFile.play_url);
+        recFiles.push({
+          url: recFile.play_url,
+          recording_start: recFile.recording_start,
+          recording_end: recFile.recording_end
+        });
       }
       meetings.push({
         uuid,
@@ -127,6 +146,43 @@ async function listAllRecordings(token, userId, from, to) {
   }
 }
 
+async function getMeetingRecordingPassword(token, meetingUUID) {
+  try {
+    const encodedUUID = encodeURIComponent(encodeURIComponent(meetingUUID));
+    const url = `https://api.zoom.us/v2/meetings/${encodedUUID}/recordings`;
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+    const { data } = await axios.get(url, config);
+
+    return data.password;
+  }
+  catch (err) {
+    throw err;
+  }
+}
+
+async function getPastMeetingDetails(token, meetingUUID) {
+  try {
+    const encodedUUID = encodeURIComponent(encodeURIComponent(meetingUUID));
+    const url = `https://api.zoom.us/v2/past_meetings/${encodedUUID}`;
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+    const { data } = await axios.get(url, config);
+
+    const { start_time, end_time } = data;
+    return { start_time, end_time };
+  }
+  catch (err) {
+    throw err;
+  }
+}
+
 // Module Exports
 
 module.exports = {
@@ -134,5 +190,6 @@ module.exports = {
   getPastMeetingParticipants,
   getUser,
   listAllRecordings,
-  getMeetingRecordingSettings
+  getMeetingRecordingPassword,
+  getPastMeetingDetails
 };
