@@ -2,12 +2,13 @@ const express = require("express");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
 const qs = require("qs");
-const { google } = require('googleapis');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+const { google } = require("googleapis");
+const low = require("lowdb");
+const FileSync = require("lowdb/adapters/FileSync");
 
 const attendanceRoutes = require("./attendanceRoutes.js");
 const recordingRoutes = require("./recordingRoutes.js");
+const reportRoutes = require("./reportRoutes.js");
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(attendanceRoutes);
 app.use(recordingRoutes);
+app.use(reportRoutes);
 
 // Zoom OAuth
 
@@ -52,37 +54,12 @@ app.get("/redirect", async (req, res) => {
   }
 });
 
-// Google OAuth
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_REDIRECT_URL = "https://zoom.piyo.cafe/redirect";
-
-const oauth2Client = new google.auth.OAuth2(
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GOOGLE_REDIRECT_URL
-);
-
-google.options({auth: oauth2Client});
-
-const scopes = [
-  'https://www.googleapis.com/auth/classroom.courseworkmaterials'
-];
-
-const url = oauth2Client.generateAuthUrl({
-  access_type: 'offline',
-  scope: scopes
-});
-
-const adapter = new FileSync('GoogleTokens.json');
-const db = low(adapter);
-
-db.defaults({ refresh_tokens: [] }).write();
-
-app.get('/googleRedirect', async (req, res) => {
-  if (req.query.code) {
-    const { tokens } = await oauth2Client.getToken(req.query.code);
-    oauth2Client.setCredentials(tokens);
+app.get("/clearCookies", async (req, res) => {
+  try {
+    res.cookie("zoomToken", '');
+    res.redirect("/app");
+  }
+  catch (err) {
+    throw err;
   }
 });
