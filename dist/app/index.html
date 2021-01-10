@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<head>
+    <title>App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Courgette&family=Noto+Sans+SC:wght@100;300;400;500;700&display=swap');
+
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+#main {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+}
+.sidebar>button {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 200;
+    border-width: 0;
+    background-color: transparent;
+    color: white;
+    font-size: 16px;
+    transition: background-color 300ms;
+    letter-spacing: 1px;
+    padding: 6px 12px 6px 24px;
+    text-align: right;
+}
+.sidebar>button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.midbar {
+    border-style: solid;
+    border-width: 0;
+    border-right-width: 2px;
+    border-color: #FFA158;
+}
+
+hr {
+    width: 100%;
+    border: white solid  0.5px;
+}
+
+input {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 200;
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-radius: 0;
+}
+button {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    letter-spacing: 1px;
+    background-color: transparent;
+    border-radius: 6px;
+    border: 2px solid #FFA158;
+    color: #FFA158;
+    cursor: pointer;
+    font-size: 12px;
+    width: 100%;
+    opacity: 1;
+    transition: opacity 400ms;
+    box-shadow: rgba(255, 255, 255, 0.1) 5px 5px 20px;
+}
+button:hover {
+    opacity: 0.8;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.students {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+.students>div {
+    flex: 1;
+}
+</style>
+</head>
+<body>
+    <div id="main">
+        <div class="sidebar" style="background-color: #FFA158;">
+            <button id="attendance-switch">attendance&nbsp;&nbsp;<i class="far fa-flag"></i></button>
+            <button id="breakout-switch">breakout&nbsp;&nbsp;<i class="fas fa-cube"></i></button>
+        </div>
+        <div id="attendance" class="content">
+            <div class="midbar">
+                <div style="padding: 10px">
+                    <input type="text" id="meetingId" placeholder="Meeting ID" /><br />
+                    <button onclick="onClickMeetingID()">Open</button>
+                </div>
+                <div id="meetingInstancesList" class="sidebar" style="background-color: #FFB073;">
+                </div>
+            </div>
+            <div class="students">
+            </div>
+        </div>
+    </div>
+    <script>
+        async function debugCall(url, body) {
+            const res = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(body),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            console.log(await res.json());
+        }
+
+        async function onClickMeetingID() {
+            listMeetings();
+        }
+
+        async function listMeetings() {
+            const meetingId = document.getElementById("meetingId").value.replace(/\s/g, '');
+            const res = await fetch('/api/listInstances', {
+                method: 'POST',
+                body: JSON.stringify({ 'meeting_id': meetingId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const { meeting_instances } = await res.json()
+            console.log(meeting_instances);
+
+            const instancesList = document.getElementById("meetingInstancesList");
+            meeting_instances.forEach((instance) => {
+                let elem = document.createElement("button")
+                elem.innerHTML = `${new Date(instance.start_time).toDateString()}&nbsp;&nbsp;`;
+                let icon = document.createElement("i");
+                icon.classList.add("fas", "fa-chevron-right");
+                elem.appendChild(icon);
+                instancesList.appendChild(elem);
+            });
+        }
+    </script>
+</body>
