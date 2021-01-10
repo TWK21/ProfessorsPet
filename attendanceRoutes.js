@@ -1,3 +1,4 @@
+// importing necessary libraries
 const express = require("express");
 
 const low = require("lowdb");
@@ -10,6 +11,7 @@ const db = low(adapter);
 const {
   listEndedMeetingInstances,
   getPastMeetingParticipants,
+  getUser,
 } = require("./zoom.js");
 
 db.defaults({ classes: [] }).write();
@@ -41,18 +43,19 @@ router.post("/api/listInstances", async (req, res) => {
 
 router.post("/api/initClass", async (req, res) => {
   const { meeting_id } = req.body;
-  const owner = req.cookies.zoomToken;
+  const zoomToken = req.cookies.zoomToken;
+  const owner = getUser(zoomToken).id;
 
   if (!meeting_id) return res.send(JSON.stringify({ error_code: 1 }));
+
   try {
     // if class already exists return error_code: 5
     const existingClass = db.get("classes").find({ id: meeting_id }).value();
     if (existingClass) return res.send(JSON.stringify({ error_code: 5 }));
 
-    console.log("starting listEndedMeetingInstances()");
     // if no instance return error_code: 3 else find latest instance_id from the meeting_id
     const meeting_instances = await listEndedMeetingInstances(
-      owner,
+      zoomToken,
       meeting_id
     );
     if (meeting_instances.length == 0)
@@ -62,7 +65,7 @@ router.post("/api/initClass", async (req, res) => {
 
     // get array of students that were in the last instance of the meeting_id
     const students = await getPastMeetingParticipants(
-      owner,
+      zoomToken,
       last_meeting_instance
     );
 
@@ -85,27 +88,81 @@ router.post("/api/listStudents", async (req, res) => {
   const { meeting_id } = req.body;
   if (!meeting_id) return res.send(JSON.stringify({ error_code: 1 }));
 
+  // check if the class exists and if it doesn't return error_code: 6
+  const existingClass = db.get("classes").find({ id: meeting_id });
+  if (existingClass.value().length == 0)
+    return res.send(JSON.stringify({ error_code: 6 }));
+
   // finding the array of students with meeting_id
-  // const students = db.get("classes").find({ id: meeting_id }).get("students").value()
-  // return res.send(JSON.stringify({error_code: 0, students:students}))
+  const students = existingClass.get("students").value();
+
+  return res.send(JSON.stringify({ error_code: 0, students }));
 });
 
 router.post("/api/checkAttendance", async (req, res) => {
-  const { instance_id } = req.body;
-  if (!instance_id) return res.send(JSON.stringify({ error_code: 1 }));
+  const { meeting_id, instance_id } = req.body;
+  const zoomToken = req.cookies.zoomToken;
+
+  if (!meeting_id || !instance_id)
+    return res.send(JSON.stringify({ error_code: 1 }));
 
   // finding students from db
-  // const students = db.get("classes").find({ id: meeting_id }).get("students").value()
+  const students = db
+    .get("classes")
+    .find({ id: meeting_id })
+    .get("students")
+    .value();
 
-  // use function getParticipants() to get students at the meeting with instance_id
-  // participants = getParticipants()
+  try {
+    // use function getParticipants() to get students at the meeting with instance_id
+    const participants = await getPastMeetingParticipants(
+      zoomToken,
+      instance_id
+    );
 
-  // map through each participant from participants variable:
-  //    if in the database --> present_students[]
-  //    if NOT in the database --> uncategorized_students[]
-  //    if in the database but not in participants --> absent_students[]
+    // collapse array of objects into an array of IDs to be able to use .includes()
+    const studentIDs = students.map((student) => student.id);
+    const participantIDs = participants.map((participant) => participant.id);
 
-  // return res.send(JSON.stringify({ error_code: 0, present_students, absent_students, uncategorized_students}))
+    // find present, absent, uncategorized student IDs
+    const uncategorized_studentIDs = [];
+    const absent_studentIDs = [];
+    const present_studentIDs = [];
+    participantIDs.forEach((participantID) =>
+      studentIDs.includes(participantID)
+        ? present_studentIDs.push(participantID)
+        : uncategorized_studentIDs.push(participantID)
+    );
+    studentIDs.forEach((studentID) =>
+      present_studentIDs.includes(studentID)
+        ? null
+        : absent_studentIDs.push(studentID)
+    );
+
+    // build array of IDs back into array of objects
+    const uncategorized_students = [];
+    const absent_students = [];
+    const present_students = [];
+    participants.forEach((participant) => {
+      if (present_studentIDs.includes(participant.id))
+        present_students.push(participant);
+      else uncategorized_students.push(participant);
+    });
+    students.forEach((student) => {
+      if (absent_studentIDs.includes(student.id)) absent_students.push(student);
+    });
+
+    return res.send(
+      JSON.stringify({
+        error_code: 0,
+        present_students,
+        absent_students,
+        uncategorized_students,
+      })
+    );
+  } catch (err) {
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
+  }
 });
 
 router.post("/api/removeStudent", async (req, res) => {
@@ -130,6 +187,25 @@ router.post("/api/removeStudent", async (req, res) => {
     return res.send(JSON.stringify({ error_code: 0 }));
   } else {
     return res.send(JSON.stringify({ error_code: 4 }));
+  }
+});
+
+router.post("/api/getUser", async (req, res) => {
+  const zoomToken = req.cookies.zoomToken;
+
+  try {
+    const user = await getUser(zoomToken);
+
+    return res.send(
+      JSON.stringify({
+        error_code: 0,
+        user_id: user.id,
+        name: `${user.first_name} ${user.last_name}`,
+        profile_picture: user.pic_url,
+      })
+    );
+  } catch (err) {
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
   }
 });
 
