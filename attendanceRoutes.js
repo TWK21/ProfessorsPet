@@ -44,7 +44,7 @@ router.post("/api/listInstances", async (req, res) => {
 router.post("/api/initClass", async (req, res) => {
   const { meeting_id } = req.body;
   const zoomToken = req.cookies.zoomToken;
-  const owner = getUser(zoomToken).id;
+  const owner = (await getUser(zoomToken)).id;
 
   if (!meeting_id) return res.send(JSON.stringify({ error_code: 1 }));
 
@@ -170,6 +170,11 @@ router.post("/api/removeStudent", async (req, res) => {
   if (!meeting_id || !student_id)
     return res.send(JSON.stringify({ error_code: 1 }));
 
+  // check if the api is pinged by correct owner of the class (teacher)
+  const owner = db.get("classes").find({ id: meeting_id }).value().owner;
+  const requester = (await getUser(req.cookies.zoomToken)).id;
+  if (owner != requester) return res.send(JSON.stringify({ error_code: 1 }));
+
   const student = db
     .get("classes")
     .find({ id: meeting_id })
@@ -178,7 +183,7 @@ router.post("/api/removeStudent", async (req, res) => {
     .value();
 
   if (student) {
-    // REMOVE A STUDENT
+    // remove a student
     db.get("classes")
       .find({ id: meeting_id })
       .get("students")
@@ -188,6 +193,25 @@ router.post("/api/removeStudent", async (req, res) => {
   } else {
     return res.send(JSON.stringify({ error_code: 4 }));
   }
+});
+
+router.post("/api/addStudent", async (req, res) => {
+  const { meeting_id, id, name, user_email } = req.body;
+  if (!meeting_id || !id || !name || !user_email)
+    return res.send(JSON.stringify({ error_code: 1 }));
+
+  // check if the api is pinged by correct owner of the class (teacher)
+  const owner = db.get("classes").find({ id: meeting_id }).value().owner;
+  const requester = (await getUser(req.cookies.zoomToken)).id;
+  if (owner != requester) return res.send(JSON.stringify({ error_code: 1 }));
+
+  // check if meeting exists
+  const meeting = db.get("classes").find({ id: meeting_id });
+  if (!meeting.value()) return res.send(JSON.stringify({ error_code: 2 }));
+
+  // add a student
+  meeting.get("students").push({ id, name, user_email }).write();
+  return res.send(JSON.stringify({ error_code: 0 }));
 });
 
 router.post("/api/getUser", async (req, res) => {
