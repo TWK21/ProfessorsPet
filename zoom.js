@@ -98,9 +98,8 @@ async function getPastMeetingParticipants(token, meetingUUID) {
     const { data } = await axios.get(url, config);
 
     const participants = data.participants.filter((participant, index, self) => index === self.findIndex((t) => ( t.id === participant.id )));
-    const alphabetizedList = _.orderBy(participants, [part => part.name], ['asc']);
 
-    return alphabetizedList;
+    return participants;
   }
   catch (err) {
     throw err;

@@ -57,7 +57,7 @@ app.get("/redirect", async (req, res) => {
 app.get("/clearCookies", async (req, res) => {
   try {
     res.cookie("zoomToken", '');
-    res.redirect("/app");
+    res.redirect("/");
   }
   catch (err) {
     throw err;

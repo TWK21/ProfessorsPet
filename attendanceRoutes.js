@@ -3,6 +3,7 @@ const express = require("express");
 
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
+const _ = require("lodash");
 
 const adapter = new FileSync("db.json");
 const db = low(adapter);
@@ -12,6 +13,8 @@ const {
   listEndedMeetingInstances,
   getPastMeetingParticipants,
   getUser,
+  getMeetingPassword,
+  getMeetingInvitation,
 } = require("./zoom.js");
 
 db.defaults({ classes: [] }).write();
@@ -120,9 +123,11 @@ router.post("/api/checkAttendance", async (req, res) => {
       instance_id
     );
 
+    // alphabetize list
+    const alphabetizedList = _.orderBy(participants, [part => part.name], ['asc']);
     // collapse array of objects into an array of IDs to be able to use .includes()
     const studentIDs = students.map((student) => student.id);
-    const participantIDs = participants.map((participant) => participant.id);
+    const participantIDs = alphabetizedList.map((participant) => participant.id);
 
     // find present, absent, uncategorized student IDs
     const uncategorized_studentIDs = [];
@@ -143,7 +148,7 @@ router.post("/api/checkAttendance", async (req, res) => {
     const uncategorized_students = [];
     const absent_students = [];
     const present_students = [];
-    participants.forEach((participant) => {
+    alphabetizedList.forEach((participant) => {
       if (present_studentIDs.includes(participant.id))
         present_students.push(participant);
       else uncategorized_students.push(participant);
@@ -228,6 +233,32 @@ router.post("/api/getUser", async (req, res) => {
         profile_picture: user.pic_url,
       })
     );
+  } catch (err) {
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
+  }
+});
+
+router.post("/api/getMeetingPassword", async (req, res) => {
+  const { meeting_id } = req.body;
+  const zoomToken = req.cookies.zoomToken;
+
+  if (!meeting_id) return res.send(JSON.stringify({ error_code: 1 }));
+
+  try {
+    const password = await getMeetingPassword(zoomToken, meeting_id);
+    return res.send(JSON.stringify({ error_code: 0, password }));
+  } catch (err) {
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
+  }
+});
+
+router.post("/api/getMeetingInvitation", async (req, res) => {
+  const { meeting_id } = req.body;
+  const zoomToken = req.cookies.zoomToken;
+
+  try {
+    const invitation = await getMeetingInvitation(zoomToken, meeting_id);
+    return res.send(JSON.stringify({ error_code: 0, invitation }));
   } catch (err) {
     return res.send(JSON.stringify({ error_code: -1, error_message: err }));
   }

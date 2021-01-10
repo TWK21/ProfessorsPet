@@ -37,8 +37,7 @@ router.post("/api/listAllRecordings", async (req, res) => {
     }
     return res.send(JSON.stringify({ error_code: 7 }));
   } catch (err) {
-    // return res.send(JSON.stringify({ error_code: -1, error_message: err }));
-    return console.log(err);
+    return res.send(JSON.stringify({ error_code: -1, error_message: err }));
   }
 });
 
@@ -48,9 +47,13 @@ router.post("/api/getMeetingRecordingPassword", async (req, res) => {
 
   if (!instance_id) return res.send(JSON.stringify({ error_code: 1 }));
 
-  // returns password requires to play the video
-  const password = await getMeetingRecordingPassword(zoomToken, instance_id);
-  return res.send(JSON.stringify({ error_code: 0, password }));
+  try {
+    // returns password requires to play the video
+    const password = await getMeetingRecordingPassword(zoomToken, instance_id);
+    return res.send(JSON.stringify({ error_code: 0, password }));
+  } catch (err) {
+    return res.send(JSON.stringify({ error_code: -1 }));
+  }
 });
 
 module.exports = router;
