@@ -1,5 +1,6 @@
 const axios = require('axios');
 const _ = require('lodash');
+const qs = require('qs');
 
 /*
 listEndedMeetingInstances(token, meetingId)
@@ -25,6 +26,14 @@ getUser(token)
       last_name, 
       pic_url
     }
+
+listAllRecordings(token, userId, from, to) - from/to = 'yyyy-mm-dd' UTC format - max range: 1 month
+    returns
+      [{
+        uuid
+        recording_urls
+          []
+      }...]
 */
 
 async function listEndedMeetingInstances(token, meetingId) {
@@ -34,7 +43,7 @@ async function listEndedMeetingInstances(token, meetingId) {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    }
+    };
     const { data } = await axios.get(url, config);
 
     const meetingsSortedByDate = data.meetings.sort((a, b) => new Date(a.start_time) < new Date(b.start_time) ? 1 : -1);
@@ -54,7 +63,7 @@ async function getPastMeetingParticipants(token, meetingUUID) {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    }
+    };
     const { data } = await axios.get(url, config);
 
     const participants = data.participants.filter((participant, index, self) => index === self.findIndex((t) => ( t.id === participant.id )));
@@ -69,12 +78,12 @@ async function getPastMeetingParticipants(token, meetingUUID) {
 
 async function getUser(token) {
   try {
-    const url = `https://api.zoom.us/v2/past_meetings/me/participants`;
+    const url = `https://api.zoom.us/v2/users/me`;
     const config = {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    }
+    };
     const { data } = await axios.get(url, config);
 
     const { id, first_name, last_name, pic_url } = data;
@@ -84,10 +93,46 @@ async function getUser(token) {
     throw err;
   }
 }
+
+async function listAllRecordings(token, userId, from, to) {
+  try {
+    const url = `https://api.zoom.us/v2/users/${userId}/recordings`;
+    const params = {
+      from,
+      to
+		};
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+    const { data } = await axios.get(url, qs.stringify(params), config);
+
+    let meetings = [];
+    for (meeting of data.meetings) {
+      let recFiles = [];
+      for (recFile of meeting.recording_files) {
+        recFiles.push(recFile.play_url);
+      }
+      meetings.push({
+        uuid,
+        recording_urls: recFiles
+      });
+    }
+
+    return meetings;
+  }
+  catch (err) {
+    throw err;
+  }
+}
+
 // Module Exports
 
 module.exports = {
   listEndedMeetingInstances,
   getPastMeetingParticipants,
-  getUser
+  getUser,
+  listAllRecordings,
+  getMeetingRecordingSettings
 };
