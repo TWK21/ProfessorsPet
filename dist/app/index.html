@@ -1,7 +1,17 @@
 <!DOCTYPE html>
 <head>
-    <title>App</title>
+    <title>Professor's Pet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="shortcut icon" type="image/png" href="../favicon.png">
+    
+    <script>
+        window.___gcfg = {
+            parsetags: 'explicit'
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Courgette&family=Noto+Sans+SC:wght@100;300;400;500;700&display=swap');
 
@@ -36,14 +46,27 @@ html, body {
     border-width: 0;
     background-color: transparent;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     transition: background-color 300ms;
     letter-spacing: 1px;
     padding: 6px 12px 6px 24px;
     text-align: right;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+    animation: sidebar-anim 300ms;
 }
 .sidebar>button:hover {
     background-color: rgba(255, 255, 255, 0.2);
+}
+.sidebar>button>* {
+    pointer-events: none;
+}
+
+@keyframes sidebar-anim {
+    from { opacity: 0; transform: translateY(-100%); }
+    to { opacity: 1; transform: translateY(0%); }
 }
 
 .midbar {
@@ -53,22 +76,40 @@ html, body {
     border-color: var(--secondary);
 }
 
+.midbar>div {
+    display: flex;
+    flex-direction: column;
+}
+
 hr {
     width: 100%;
     border: rgb(118, 118, 118) solid  0.5px;
     border-top-width: 0;
 }
 
+select {
+    color: rgb(118, 118, 118);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 200;
+    font-size: 14px;
+    width: 100%;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    padding: 1px 2px;
+}
 input {
+    transition: opacity 400ms;
     color: rgb(118, 118, 118);
     font-family: 'Noto Sans SC', sans-serif;
     font-weight: 200;
     border-width: 0;
     border-bottom-width: 1px;
     border-radius: 0;
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 6px;
     background-color: transparent;
+    padding: 1px 2px;
+    width: calc(100% - 4px);
 }
 button {
     font-family: 'Noto Sans SC', sans-serif;
@@ -83,9 +124,13 @@ button {
     width: 100%;
     opacity: 1;
     transition: opacity 400ms;
+    white-space: nowrap;
 }
 button:hover {
     opacity: 0.8;
+}
+button:disabled {
+    opacity: 0.4;
 }
 
 .content {
@@ -138,6 +183,11 @@ table>tbody>tr {
     border-bottom-width: 1px;
     border-style: solid;
     border-color: rgb(230, 230, 230);
+    animation: fade-in 300ms;
+}
+@keyframes fade-in {
+    from { opacity: 0 }
+    to { opacity: 1 }
 }
 table>tbody>tr>th {
     padding: 6px 12px;
@@ -170,27 +220,72 @@ table>tbody>tr>td {
 }
 #root>div {
 }
+
+#modal {
+    display: none;
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    animation: modal-fade-in 300ms;
+}
+#close-modal {
+    background-color: transparent;
+    position: absolute;
+    z-index: 2;
+    height: 100vh;
+    width: 100vw;
+    cursor: pointer;
+}
+#modal>div:not(#close-modal) {
+    z-index: 2;
+    background-color: var(--background);
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 0 15px;
+}
+@keyframes modal-fade-in {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+a { color: white; opacity: 0.8; transition: opacity 300ms; }
+a:hover { color: white; opacity: 1 }
 </style>
 </head>
 <body>
+    <div id="modal">
+        <div id="close-modal" onclick="closeModal()"></div>
+        <div id="share-modal" style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+            <div id="classroomContainer">
+            </div>
+        </div>
+    </div>
     <div id="root">
         <div id="header">
-            <img src="/pet.svg" height=60 style="margin-top: -15px; position: fixed; top: 0px; left: 25px;" />
+            <img src="/pet.svg" height=60 style="margin-top: -15px; position: absolute; top: 0px; left: 25px;" />
             <div><span id="user-name"></span></div>
             <div><img style="height: 28px; border-radius: 50%; margin-left: 10px;" id="user-picture" /></div>
+            <div style="margin-left: 20px;"><a style="font-size: 22px; margin-top: -3px;" href="/clearCookies"><i class="fas fa-sign-out-alt"></i></a></div>
         </div>
         <div id="main">
             <div class="sidebar" style="background-color: var(--primary);">
-                <button id="attendance-switch">zoom&nbsp;&nbsp;<i class="fas fa-video"></i></button>
-                <button id="breakout-switch">google&nbsp;&nbsp;<i class="fas fa-book-reader"></i></button>
+                <button id="attendance-switch" style="animation: unset;">zoom&nbsp;&nbsp;<i class="fas fa-video"></i></button>
             </div>
             <div id="attendance" class="content">
                 <div class="midbar">
-                    <div style="padding: 10px">
-                        <input type="text" id="meetingId" placeholder="Meeting ID" /><br />
-                        <button onclick="onClickMeetingID()">Open</button>
-                    </div>
-                    <div id="meetingInstancesList" class="sidebar" style="background-color: var(--secondary);">
+                    <div style="overflow-y: auto; height: calc(100vh - 45px);">
+                        <div style="padding: 10px">
+                            <input type="text" id="meetingId" placeholder="Meeting ID" /><br />
+                            <button onclick="onClickMeetingID()">Open</button>
+                            <button onclick="openModal({ url: invitationLink })" id="post-invite-button" disabled style="margin-top: 6px;">Post Invite on Classroom</button>
+                        </div>
+                        <div id="meetingInstancesList" class="sidebar" style="background-color: var(--secondary); flex: 1;">
+                        </div>
                     </div>
                 </div>
                 <div class="students">
@@ -199,10 +294,16 @@ table>tbody>tr>td {
                             <th>Status</th>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Actions</th>
                         </tr>
                     </table>
                 </div>
                 <div class="data">
+                    <div class="dataPair">
+                        <span id="data-total">0</span><br />
+                        <span>Total Students</span>
+                    </div>
+                    <hr />
                     <div class="dataPair">
                         <span id="data-present">0</span><br />
                         <span>Present Students</span>
@@ -218,11 +319,18 @@ table>tbody>tr>td {
                         <span>Uncategorized Students</span>
                     </div>
                     <hr />
+                    <canvas id="studentRatio"></canvas>
+                    <hr />
                     <span style="color: var(--primary); font-size: 14px;"><b>Meeting ID:</b></span><br />
                     <span style="font-size: 14px;" id="data-meetingId"></span>
                     <hr />
                     <span style="color: var(--primary); font-size: 14px;"><b>Instance Date:</b></span><br />
                     <span style="font-size: 14px;" id="data-instanceDate"></span>
+                    <hr />
+                    <span style="color: var(--primary); font-size: 14px;"><b>Recording Passcode:&nbsp;</b><span style="font-size: 14px;" id="recordingPass"></span></span>
+                    <select id="recording-recordings" disabled>
+                    </select><br />
+                    <button id="postRecordingButton" onclick="openModal({ url: document.getElementById('recording-recordings').value })" disabled>Post Recording on Classroom</button>
                 </div>
             </div>
         </div>
@@ -231,6 +339,21 @@ table>tbody>tr>td {
         var students = [];
         var meetingId = "";
         var instanceId = "";
+        var invitationLink = "";
+
+        var studentRatioCtx = document.getElementById("studentRatio").getContext("2d");
+        var studentRatioChart = new Chart(studentRatioCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [ 'Present', 'Absent', 'Uncategorized' ],
+                datasets: [{
+                    label: 'Student Ratio',
+                    backgroundColor: [ 'green', 'red', 'gray' ],
+                    data: [ 0, 0, 0 ]
+                }]
+            },
+            options: {}
+        });
 
         async function getUser() {
             const res = await fetch('/api/getUser', {
@@ -242,6 +365,94 @@ table>tbody>tr>td {
             document.getElementById("user-picture").src = profile_picture;
         }
         getUser();
+
+        async function closeModal() {
+            document.getElementById("modal").style.display = "none";
+            document.getElementById("share-modal").style.display = "none";
+        }
+
+        async function openModal(options) {
+            document.getElementById("modal").style.display = "flex";
+            document.getElementById("share-modal").style.display = "flex";
+            let shareButton = document.createElement("div");
+            shareButton.id = "shareButton";
+            document.getElementById("classroomContainer").appendChild(shareButton);
+            gapi.sharetoclassroom.render('shareButton', { size: 48, ...options });
+        }
+
+        async function getRecordings() {
+            const res = await fetch('/api/listAllRecordings', {
+                method: 'POST',
+                body: JSON.stringify({ 'instance_id': instanceId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const { recording_urls } = await res.json();
+
+            const recordingsList = document.getElementById("recording-recordings");
+            recordingsList.innerHTML = "";
+
+            if (recording_urls && recording_urls.length > 0) {
+                const res = await fetch('/api/getMeetingRecordingPassword', {
+                    method: 'POST',
+                    body: JSON.stringify({ 'instance_id': instanceId }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                document.getElementById('recordingPass').innerHTML = (await res.json()).password || "";
+
+                recording_urls.forEach((recording) => {
+                    let elem = document.createElement("option");
+                    elem.value = recording.url;
+                    let start = new Date(recording.recording_start);
+                    let end = new Date(recording.recording_end);
+                    let diffMinutes = Math.floor(((end - start)/1000)/60);
+
+                    let type = '';
+                    switch (recording.recording_type) {
+                        case 'shared_screen_with_speaker_view(CC)':
+                            type = 'Shared Screen with Speaker View (CC)';
+                            break;
+                        case 'shared_screen_with_speaker_view':
+                            type = 'Shared Screen with Speaker View';
+                            break;
+                        case 'shared_screen_with_gallery_view':
+                            type = 'Shared Screen with Gallery View';
+                            break;
+                        case 'speaker_view':
+                            type = 'Speaker View';
+                            break;
+                        case 'gallery_view':
+                            type = 'Gallery View';
+                            break;
+                        case 'shared_screen':
+                            type = 'Shared Screen';
+                            break;
+                        case 'audio_only':
+                            type = 'Audio Only';
+                            break;
+                        case 'audio_transcript':
+                            type = 'Audio Transcript';
+                            break;
+                        case 'chat_file':
+                            type = 'Chat File';
+                            break;
+                        case 'active_speaker':
+                            type = 'Active Speaker';
+                            break;
+                    }
+                    console.log(recording.recording_type, type);
+
+                    elem.innerHTML = `${type} (${new Date(start).toLocaleTimeString()} ${diffMinutes} minutes)`;
+                    recordingsList.appendChild(elem);
+                });
+                document.getElementById("postRecordingButton").disabled = false;
+                document.getElementById("recording-recordings").disabled = false;
+            }
+            else {
+                document.getElementById('recordingPass').innerHTML = "";
+                document.getElementById("postRecordingButton").disabled = true;
+                document.getElementById("recording-recordings").disabled = true;
+            }
+        }
 
         async function debugCall(url, body) {
             const res = await fetch(url, {
@@ -257,6 +468,13 @@ table>tbody>tr>td {
             document.getElementById("data-meetingId").innerHTML = meetingId;
             await Promise.all([ initClass(), listMeetings() ]);
             listStudents();
+            const res = await fetch('/api/getMeetingInvitation', {
+                method: 'POST',
+                body: JSON.stringify({ meeting_id: meetingId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            invitationLink = (await res.json()).invitation;
+            document.getElementById("post-invite-button").disabled = false;
         }
 
         async function initClass() {
@@ -281,14 +499,17 @@ table>tbody>tr>td {
             instancesList.innerHTML = "";
             meeting_instances.forEach((instance) => {
                 let elem = document.createElement("button")
-                elem.innerHTML = `${new Date(instance.start_time).toDateString()}&nbsp;&nbsp;`;
+                let date = new Date(instance.start_time);
+                elem.setAttribute("title", date.toLocaleTimeString());
+                elem.innerHTML = `<div><span title="${date.toLocaleTimeString()}">${date.toDateString()}</span></div>`;
                 elem.onclick = (elem) => {
                     openInstance(elem.target.getAttribute("instanceId"));
-                    document.getElementById("data-instanceDate").innerHTML = elem.target.firstChild.nodeValue;
+                    document.getElementById("data-instanceDate").innerHTML = elem.target.firstChild.innerHTML;
                 }
                 elem.setAttribute("instanceId", instance.uuid);
                 let icon = document.createElement("i");
                 icon.classList.add("fas", "fa-chevron-right");
+                icon.style.padding = "0 0 0 10px";
                 elem.appendChild(icon);
                 instancesList.appendChild(elem);
             });
@@ -303,42 +524,82 @@ table>tbody>tr>td {
             students = (await res.json()).students;
         }
 
+        async function addToClass(studentId, email, name) {
+            const res = await fetch('/api/addStudent', {
+                method: 'POST',
+                body: JSON.stringify({ 'meeting_id': meetingId, 'id': studentId, 'user_email': email, 'name': name }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            code = (await res.json()).error_code;
+            if (code === 0)
+                alert("Successfully added a student to the class!");
+            else
+                alert(`Error: ${code}`);
+            openInstance(instanceId);
+        }
+
+        async function removeFromClass(studentId) {
+            const res = await fetch('/api/removeStudent', {
+                method: 'POST',
+                body: JSON.stringify({ 'meeting_id': meetingId, 'student_id': studentId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            code = (await res.json()).error_code;
+            if (code === 0)
+                alert("Successfully removed a student to the class!");
+            else
+                alert(`Error: ${code}`);
+            openInstance(instanceId);
+        }
+
         async function openInstance(_instanceId) {
             instanceId = _instanceId
             console.log(instanceId);
+            getRecordings();
             const res = await fetch('/api/checkAttendance', {
                 method: 'POST',
                 body: JSON.stringify({ 'instance_id': instanceId, 'meeting_id': meetingId }),
                 headers: { 'Content-Type': 'application/json' }
             });
-            const { present_students, absent_students, uncategorized_students } = await res.json();
+            let { present_students, absent_students, uncategorized_students } = await res.json();
+            present_students = present_students || [];
+            absent_students = absent_students || [];
+            uncategorized_students = uncategorized_students || [];
 
             const studentsTable = document.getElementById("studentsTable");
             let rowsCount = studentsTable.rows.length;
             for (let i = 1; i < rowsCount; i++)
                 studentsTable.deleteRow(1);
             present_students.forEach((student) => {
-                let row = studentsTable.insertRow(1);
+                let row = studentsTable.insertRow(studentsTable.rows.length);
                 row.insertCell(0).innerHTML = "<span style='color: green;'>Present</span>";
                 row.insertCell(1).innerHTML = student.name;
                 row.insertCell(2).innerHTML = student.user_email;
+                row.insertCell(3).innerHTML = `<button onclick="removeFromClass('${student.id}')">Remove From Class</button>`;
             });
             uncategorized_students.forEach((student) => {
-                let row = studentsTable.insertRow(1);
+                let row = studentsTable.insertRow(studentsTable.rows.length);
                 row.insertCell(0).innerHTML = "<span>Uncategorized</span>";
                 row.insertCell(1).innerHTML = student.name;
                 row.insertCell(2).innerHTML = student.user_email;
+                row.insertCell(3).innerHTML = `<button onclick="addToClass('${student.id}', '${student.user_email}', '${student.name}')">Add To Class</button>`;
             });
             absent_students.forEach((student) => {
-                let row = studentsTable.insertRow(1);
-                row.insertCell(0).innerHTML = "<b style='color: red;'>Absent</b>";
+                let row = studentsTable.insertRow(studentsTable.rows.length);
+                row.insertCell(0).innerHTML = "<span style='color: red;'>Absent</span>";
                 row.insertCell(1).innerHTML = student.name;
                 row.insertCell(2).innerHTML = student.user_email;
+                row.insertCell(3).innerHTML = `<button onclick="removeFromClass('${student.id}')">Remove From Class</button>`;
             });
 
             document.getElementById("data-present").innerHTML = present_students.length;
             document.getElementById("data-absent").innerHTML = absent_students.length;
             document.getElementById("data-uncategorized").innerHTML = uncategorized_students.length;
+            document.getElementById("data-total").innerHTML = present_students.length + absent_students.length + uncategorized_students.length;
+            studentRatioChart.data.datasets[0].data[0] = present_students.length;
+            studentRatioChart.data.datasets[0].data[1] = absent_students.length;
+            studentRatioChart.data.datasets[0].data[2] = uncategorized_students.length;
+            studentRatioChart.update();
         }
     </script>
 </body>
