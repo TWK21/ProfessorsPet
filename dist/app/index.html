@@ -5,16 +5,25 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Courgette&family=Noto+Sans+SC:wght@100;300;400;500;700&display=swap');
 
+:root {
+    --primary: #2F2131;
+    --secondary: #342536;
+    --header: #201722;
+    --background: #FFFFF8;
+}
+
 html, body {
     margin: 0;
     height: 100%;
     font-family: 'Noto Sans SC', sans-serif;
+    background-color: var(--background);
 }
 
 #main {
     display: flex;
     flex-direction: row;
     height: 100%;
+    flex: 1;
 }
 
 .sidebar {
@@ -41,20 +50,25 @@ html, body {
     border-style: solid;
     border-width: 0;
     border-right-width: 2px;
-    border-color: #FFA158;
+    border-color: var(--secondary);
 }
 
 hr {
     width: 100%;
-    border: white solid  0.5px;
+    border: rgb(118, 118, 118) solid  0.5px;
+    border-top-width: 0;
 }
 
 input {
+    color: rgb(118, 118, 118);
     font-family: 'Noto Sans SC', sans-serif;
     font-weight: 200;
     border-width: 0;
     border-bottom-width: 1px;
     border-radius: 0;
+    font-size: 16px;
+    margin-bottom: 6px;
+    background-color: transparent;
 }
 button {
     font-family: 'Noto Sans SC', sans-serif;
@@ -62,14 +76,13 @@ button {
     letter-spacing: 1px;
     background-color: transparent;
     border-radius: 6px;
-    border: 2px solid #FFA158;
-    color: #FFA158;
+    border: 2px solid var(--secondary);
+    color: var(--secondary);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     width: 100%;
     opacity: 1;
     transition: opacity 400ms;
-    box-shadow: rgba(255, 255, 255, 0.1) 5px 5px 20px;
 }
 button:hover {
     opacity: 0.8;
@@ -79,38 +92,157 @@ button:hover {
     display: flex;
     flex-direction: row;
     height: 100%;
+    flex: 1;
 }
 
 .students {
+    margin: 20px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 0 15px;
+}
+
+.data {
+    margin: 20px;
+    margin-left: 0;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 0 15px;
+    padding: 20px;
+}
+
+.dataPair>span:first-child {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--primary);
+}
+.dataPair>span:nth-child(3) {
+    font-size: 12px;
+    padding-top: -4px;
+    white-space: nowrap;
+}
+
+table {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+table>tbody>tr:first-child {
+    background-color: var(--secondary);
+    color: white;
+    border-color: transparent;
+}
+table>tbody>tr:first-child>th {
+    font-weight: 300;
+}
+table>tbody>tr {
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-style: solid;
+    border-color: rgb(230, 230, 230);
+}
+table>tbody>tr>th {
+    padding: 6px 12px;
+}
+table>tbody>tr>td {
+    padding: 6px 12px;
+    font-size: 16px;
+    font-weight: 300;
+    color: rgb(118, 118, 118);
+}
+
+#header {
+    height: 45px;
+    background-color: var(--header);
+    color: white;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 20px;
+    align-items: center;
+}
+#header>div {
     display: flex;
     flex-direction: row;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
     height: 100%;
 }
-.students>div {
-    flex: 1;
+#root>div {
 }
 </style>
 </head>
 <body>
-    <div id="main">
-        <div class="sidebar" style="background-color: #FFA158;">
-            <button id="attendance-switch">attendance&nbsp;&nbsp;<i class="far fa-flag"></i></button>
-            <button id="breakout-switch">breakout&nbsp;&nbsp;<i class="fas fa-cube"></i></button>
+    <div id="root">
+        <div id="header">
+            <img src="/pet.svg" height=60 style="margin-top: -15px; position: fixed; top: 0px; left: 25px;" />
+            <div><span id="user-name"></span></div>
+            <div><img style="height: 28px; border-radius: 50%; margin-left: 10px;" id="user-picture" /></div>
         </div>
-        <div id="attendance" class="content">
-            <div class="midbar">
-                <div style="padding: 10px">
-                    <input type="text" id="meetingId" placeholder="Meeting ID" /><br />
-                    <button onclick="onClickMeetingID()">Open</button>
-                </div>
-                <div id="meetingInstancesList" class="sidebar" style="background-color: #FFB073;">
-                </div>
+        <div id="main">
+            <div class="sidebar" style="background-color: var(--primary);">
+                <button id="attendance-switch">zoom&nbsp;&nbsp;<i class="fas fa-video"></i></button>
+                <button id="breakout-switch">google&nbsp;&nbsp;<i class="fas fa-book-reader"></i></button>
             </div>
-            <div class="students">
+            <div id="attendance" class="content">
+                <div class="midbar">
+                    <div style="padding: 10px">
+                        <input type="text" id="meetingId" placeholder="Meeting ID" /><br />
+                        <button onclick="onClickMeetingID()">Open</button>
+                    </div>
+                    <div id="meetingInstancesList" class="sidebar" style="background-color: var(--secondary);">
+                    </div>
+                </div>
+                <div class="students">
+                    <table id="studentsTable" style="width: 100%;">
+                        <tr>
+                            <th>Status</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                        </tr>
+                    </table>
+                </div>
+                <div class="data">
+                    <div class="dataPair">
+                        <span id="data-present">0</span><br />
+                        <span>Present Students</span>
+                    </div>
+                    <hr />
+                    <div class="dataPair">
+                        <span id="data-absent">0</span><br />
+                        <span>Absent Students</span>
+                    </div>
+                    <hr />
+                    <div class="dataPair">
+                        <span id="data-uncategorized">0</span><br />
+                        <span>Uncategorized Students</span>
+                    </div>
+                    <hr />
+                    <span style="color: var(--primary); font-size: 14px;"><b>Meeting ID:</b></span><br />
+                    <span style="font-size: 14px;" id="data-meetingId"></span>
+                    <hr />
+                    <span style="color: var(--primary); font-size: 14px;"><b>Instance Date:</b></span><br />
+                    <span style="font-size: 14px;" id="data-instanceDate"></span>
+                </div>
             </div>
         </div>
     </div>
     <script>
+        var students = [];
+        var meetingId = "";
+        var instanceId = "";
+
+        async function getUser() {
+            const res = await fetch('/api/getUser', {
+                method: 'POST'
+            });
+            const { name, profile_picture } = await res.json();
+            console.log(name, profile_picture);
+            document.getElementById("user-name").innerHTML = name;
+            document.getElementById("user-picture").src = profile_picture;
+        }
+        getUser();
+
         async function debugCall(url, body) {
             const res = await fetch(url, {
                 method: 'POST',
@@ -121,11 +253,22 @@ button:hover {
         }
 
         async function onClickMeetingID() {
-            listMeetings();
+            meetingId = document.getElementById("meetingId").value.replace(/\s/g, '');
+            document.getElementById("data-meetingId").innerHTML = meetingId;
+            await Promise.all([ initClass(), listMeetings() ]);
+            listStudents();
+        }
+
+        async function initClass() {
+            const res = await fetch('/api/initClass', {
+                method: 'POST',
+                body: JSON.stringify({ 'meeting_id': meetingId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            console.log(`init class code: ${(await res.json()).error_code}`);
         }
 
         async function listMeetings() {
-            const meetingId = document.getElementById("meetingId").value.replace(/\s/g, '');
             const res = await fetch('/api/listInstances', {
                 method: 'POST',
                 body: JSON.stringify({ 'meeting_id': meetingId }),
@@ -135,14 +278,67 @@ button:hover {
             console.log(meeting_instances);
 
             const instancesList = document.getElementById("meetingInstancesList");
+            instancesList.innerHTML = "";
             meeting_instances.forEach((instance) => {
                 let elem = document.createElement("button")
                 elem.innerHTML = `${new Date(instance.start_time).toDateString()}&nbsp;&nbsp;`;
+                elem.onclick = (elem) => {
+                    openInstance(elem.target.getAttribute("instanceId"));
+                    document.getElementById("data-instanceDate").innerHTML = elem.target.firstChild.nodeValue;
+                }
+                elem.setAttribute("instanceId", instance.uuid);
                 let icon = document.createElement("i");
                 icon.classList.add("fas", "fa-chevron-right");
                 elem.appendChild(icon);
                 instancesList.appendChild(elem);
             });
+        }
+
+        async function listStudents() {
+            const res = await fetch('/api/listStudents', {
+                method: 'POST',
+                body: JSON.stringify({ 'meeting_id': meetingId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            students = (await res.json()).students;
+        }
+
+        async function openInstance(_instanceId) {
+            instanceId = _instanceId
+            console.log(instanceId);
+            const res = await fetch('/api/checkAttendance', {
+                method: 'POST',
+                body: JSON.stringify({ 'instance_id': instanceId, 'meeting_id': meetingId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const { present_students, absent_students, uncategorized_students } = await res.json();
+
+            const studentsTable = document.getElementById("studentsTable");
+            let rowsCount = studentsTable.rows.length;
+            for (let i = 1; i < rowsCount; i++)
+                studentsTable.deleteRow(1);
+            present_students.forEach((student) => {
+                let row = studentsTable.insertRow(1);
+                row.insertCell(0).innerHTML = "<span style='color: green;'>Present</span>";
+                row.insertCell(1).innerHTML = student.name;
+                row.insertCell(2).innerHTML = student.user_email;
+            });
+            uncategorized_students.forEach((student) => {
+                let row = studentsTable.insertRow(1);
+                row.insertCell(0).innerHTML = "<span>Uncategorized</span>";
+                row.insertCell(1).innerHTML = student.name;
+                row.insertCell(2).innerHTML = student.user_email;
+            });
+            absent_students.forEach((student) => {
+                let row = studentsTable.insertRow(1);
+                row.insertCell(0).innerHTML = "<b style='color: red;'>Absent</b>";
+                row.insertCell(1).innerHTML = student.name;
+                row.insertCell(2).innerHTML = student.user_email;
+            });
+
+            document.getElementById("data-present").innerHTML = present_students.length;
+            document.getElementById("data-absent").innerHTML = absent_students.length;
+            document.getElementById("data-uncategorized").innerHTML = uncategorized_students.length;
         }
     </script>
 </body>

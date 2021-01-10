@@ -6,7 +6,7 @@
 
 body {
     color: white;
-    background-color: #FFA158;
+    background-color: #201722;
     font-family: 'Noto Sans SC', sans-serif;
 }
 
@@ -15,13 +15,19 @@ html, body {
     height: 100%;
 }
 
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 #main {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
     text-align: center;
-    flex-direction: row;
+    flex-direction: column;
+    animation: fade-in 2s;
 }
 
 .container {
@@ -45,7 +51,7 @@ button {
     font-size: 20px;
     opacity: 1;
     transition: opacity 400ms;
-    box-shadow: rgba(255, 255, 255, 0.1) 5px 5px 20px;
+    box-shadow: rgba(255, 255, 255, 0.05) 5px 5px 10px;
 }
 button:hover {
     opacity: 0.8;
@@ -65,18 +71,28 @@ hr {
     border-radius: 20px 0 20px 0;
     color: #FFB073;
 }
-#main>div {
-    padding: 20px;
+.horizontal>div {
+    padding: 5px 20px;
+}
+
+.horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 </style>
 </head>
 <body>
     <div id="main">
-        <div>
-            <span class="title">TEACHER'S AID</span>
-        </div>
-        <div>
-            <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=t9JlherqT8qCCuLJA8y2rQ&redirect_uri=https://zoom.piyo.cafe/redirect"><button type="button">Connect with Zoom</button></a>
+        <img src="./pet.svg" width=300 style="margin-top: -50px" />
+        <div class="horizontal">
+            <div>
+                <span class="title">TEACHER'S PET</span>
+            </div>
+            <div>
+                <a href="https://zoom.us/oauth/authorize?response_type=code&client_id=t9JlherqT8qCCuLJA8y2rQ&redirect_uri=https://zoom.piyo.cafe/redirect"><button type="button">Connect with Zoom</button></a>
+            </div>
         </div>
     </div>
 </body>
