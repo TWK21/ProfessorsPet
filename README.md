@@ -8,6 +8,9 @@
 ### Attendance Page
 <img src="https://github.com/lanpai/ProfessorsPet/blob/main/dist/Demo/attendanceDemo.png"/>
 
+
+
+---
 ## Inspiration
 According to [_The Journal_](https://thejournal.com/articles/2020/06/02/survey-teachers-feeling-stressed-anxious-overwhelmed-and-capable.aspx), **more than 94%** of the teachers have transitioned to remote teaching, but there has been a **lack of improvements** in tools to support remote teaching.
 
@@ -23,7 +26,7 @@ Dude to this lack of tools and technologies in the educational field, teachers h
 The web app [Professor's Pet](https://github.com/lanpai/ProfessorsPet) is a tool that simplifies teacher’s tasks and reduces the overwhelming responsibilities of managing various remote learning platforms like Zoom and  Google Classroom by integrating them into a single master platform. This will provide the teachers to have a single user-friendly website that not only prevents unnecssary hoppings around different websites but also allows to execute daily tasks with automation and visualizations, such as attendance, announcements, and invitations to a meeting. 
 
 ---
-## How I built it ##
+## How We built it ##
 Our team integrated [Zoom API](https://marketplace.zoom.us/docs/api-reference/zoom-api) with OAuth and [Google Classroom API](https://developers.google.com/classroom). For backend, we utilized node.js, express.js, nginx on unix server. For frontend, HTML, CSS, and JavaScript are used.  
 
 
