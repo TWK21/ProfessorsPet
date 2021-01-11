@@ -1,5 +1,13 @@
 # Professor's Pet
 
+## Demo
+### Home Page
+<img src="https://github.com/lanpai/ProfessorsPet/blob/main/dist/Demo/loginDemo.gif"/>
+
+
+### Attendance Page
+<img src="https://github.com/lanpai/ProfessorsPet/blob/main/dist/Demo/attendanceDemo.png"/>
+
 ## Inspiration
 According to [_The Journal_](https://thejournal.com/articles/2020/06/02/survey-teachers-feeling-stressed-anxious-overwhelmed-and-capable.aspx), **more than 94%** of the teachers have transitioned to remote teaching, but there has been a **lack of improvements** in tools to support remote teaching.
 
