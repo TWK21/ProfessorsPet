@@ -23,11 +23,11 @@ Dude to this lack of tools and technologies in the educational field, teachers h
 
 ---
 ## What it does
-The web app [Professor's Pet](https://github.com/lanpai/ProfessorsPet) is a tool that simplifies teacher’s tasks and reduces the overwhelming responsibilities of managing various remote learning platforms like Zoom and  Google Classroom by integrating them into a single master platform. This will provide the teachers to have a single user-friendly website that not only prevents unnecssary hoppings around different websites but also allows to execute daily tasks with automation and visualizations, such as attendance, announcements, and invitations to a meeting. 
+The web app [Professor's Pet](https://github.com/lanpai/ProfessorsPet) is a tool that simplifies teacher’s tasks and reduces the overwhelming responsibilities of managing various remote learning platforms like Zoom and  Google Classroom by integrating them into a single master platform. This will provide the teachers to have a single user-friendly website that not only prevents unnecessary hoppings around different websites but also allows them to execute daily tasks with automation and visualizations, such as attendance, announcements, and invitations to a meeting. 
 
 ---
 ## How We built it ##
-Our team integrated [Zoom API](https://marketplace.zoom.us/docs/api-reference/zoom-api) with OAuth and [Google Classroom API](https://developers.google.com/classroom). For backend, we utilized node.js, express.js, nginx on unix server. For frontend, HTML, CSS, and JavaScript are used.  
+Our team integrated [Zoom API](https://marketplace.zoom.us/docs/api-reference/zoom-api) with OAuth and [Google Classroom API](https://developers.google.com/classroom). For the backend, we utilized node.js, express.js, Nginx on the Unix server. For the frontend, HTML, CSS, and JavaScript are used.  
 
 
 <!---
@@ -39,18 +39,18 @@ One of the biggest struggles we faced as a team was that Zoom only allows API re
 
 ---
 ## Accomplishments that I'm proud of 
-We are proud of the seamless collaboration despite working in production environment and most importantly our logo!
+We are proud of the seamless collaboration despite working in the production environment and most importantly our logo!
 
 
 
 ---
 ## What I learned
-While researching and testing our code with remote teaching platforms, we were able to approach the problems of online school in perspective of the teachers.
+While researching and testing our code with remote teaching platforms, we were able to approach the problems of online schools from the perspective of the teachers.
 
 
 ---
 ## What's next for Professor's Pet
-After the hackathon, we are hoping to implement more automated Zoom functions like creating and assigning students to breakout rooms, and saving chat to keep track of activities of each student during the meeting.
+After the hackathon, we are hoping to implement more automated Zoom functions like creating and assigning students to breakout rooms, and saving chat to keep track of the activities of each student during the meeting.
 
 
 ---
