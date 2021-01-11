@@ -3,7 +3,7 @@
 ## Inspiration
 According to [_The Journal_](https://thejournal.com/articles/2020/06/02/survey-teachers-feeling-stressed-anxious-overwhelmed-and-capable.aspx), **more than 94%** of the teachers have transitioned to remote teaching, but there has been a **lack of improvements** in tools to support remote teaching.
 
-Dude to this lack of tools and technologies in the educational field, teachers have struggling to cover the necessary amount of curriculum within a year and expressing frustrations faced by the harsh situation:
+Dude to this lack of tools and technologies in the educational field, teachers have been struggling to cover the necessary amount of curriculum within a year and expressing frustrations faced by the harsh situation:
 - ["I am feeling overwhelmed with vast amount of ideas and resources available." ](https://ditchthattextbook.com/dear-teacher-overwhelmed-by-technology/)
 - ["I don’t have much experience, and I’m learning things all over again,” ](https://berkeleyhighjacket.com/2020/features/educators-feel-overwhelmed-by-the-increased-workload-of-distance-learning/) 
 - [“I didn’t grow up with computers. Back then, we had typewriters, maybe an electric typewriter, and now they no longer exist,” ](https://berkeleyhighjacket.com/2020/features/educators-feel-overwhelmed-by-the-increased-workload-of-distance-learning/)
